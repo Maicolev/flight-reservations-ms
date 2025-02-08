@@ -4,6 +4,7 @@
 - Java 17
 - Docker
 - Maven
+- RabbitMQ
 
 ## Ejecución
 ```bash

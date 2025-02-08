@@ -39,7 +39,7 @@ public class DatabaseConfig {
     public LocalContainerEntityManagerFactoryBean postgresEntityManager() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(postgresDataSource());
-        em.setPackagesToScan("com.example.processing.model");
+        em.setPackagesToScan("com.example.processing.model", "com.example.common.model");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

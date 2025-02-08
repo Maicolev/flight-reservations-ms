@@ -11,6 +11,8 @@ import com.example.processing.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +23,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationProcessorImpl implements ReservationProcessor {
 
-    private SeatRepository seatRepository;
-    private ReservationRepository reservationRepository;
-    private RabbitTemplate rabbitTemplate;
+    @Autowired private final SeatRepository seatRepository;
+    @Autowired private final ReservationRepository reservationRepository;
+    @Autowired private final RabbitTemplate rabbitTemplate;
 
     @RabbitListener(queues = "reservations.pending")
     @Transactional
-    public void processPendingReservations(ReservationRequest request) {
-        Seat seat = seatRepository.findByFlightIdAndSeatNumberWithLock(request.flightId(), request.seatNumber())
+    public void processPendingReservations(@Payload ReservationRequest request) {
+        if (seatRepository == null || reservationRepository == null || rabbitTemplate == null) {
+            throw new IllegalStateException("Las dependencias no están inyectadas correctamente.");
+        }
+
+        Seat seat = seatRepository.findByFlightIdAndSeatNumber(request.flightId(), request.seatNumber())
                 .orElseThrow(() -> new SeatNotFoundException("Asiento no encontrado"));
 
         if (seat.isReserved()) {

@@ -4,17 +4,24 @@ import jakarta.persistence.*;
 
 @Entity
 public class Seat {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "flight_id", referencedColumnName = "id")
     private Flight flight;
 
+    @Column(name = "seat_number")
     private String seatNumber;
+
+    @Column(name = "reserved")
     private boolean reserved;
 
     @Version
+    @Column(name = "version")
     private Long version;
 
     // Getter y Setter para id

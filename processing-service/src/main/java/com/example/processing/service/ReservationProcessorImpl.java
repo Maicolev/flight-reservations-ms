@@ -11,41 +11,45 @@ import com.example.processing.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-// processing-service/src/main/java/com/example/processing/service/ReservationProcessor.java
 @Service
 @RequiredArgsConstructor
 public class ReservationProcessorImpl implements ReservationProcessor {
 
-    @Autowired private final SeatRepository seatRepository;
-    @Autowired private final ReservationRepository reservationRepository;
-    @Autowired private final RabbitTemplate rabbitTemplate;
+    private final SeatRepository seatRepository;
+    private final ReservationRepository reservationRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     @RabbitListener(queues = "reservations.pending")
     @Transactional
     public void processPendingReservations(@Payload ReservationRequest request) {
-        if (seatRepository == null || reservationRepository == null || rabbitTemplate == null) {
-            throw new IllegalStateException("Las dependencias no están inyectadas correctamente.");
-        }
+        System.out.println("Reservation processing started: " + request);
 
         Seat seat = seatRepository.findByFlightIdAndSeatNumber(request.flightId(), request.seatNumber())
                 .orElseThrow(() -> new SeatNotFoundException("Asiento no encontrado"));
 
         if (seat.isReserved()) {
-            rabbitTemplate.convertAndSend("reservations.errors", request);
+            sendErrorResponse(request);
             return;
         }
 
+        confirmReservation(request, seat);
+    }
+
+    private void sendErrorResponse(ReservationRequest request) {
+        rabbitTemplate.convertAndSend("reservations.errors", request);
+    }
+
+    private void confirmReservation(ReservationRequest request, Seat seat) {
         Reservation reservation = new Reservation();
         reservation.setSeat(seat);
         reservation.setEmail(request.email());
         reservation.setStatus(Reservation.ReservationStatus.CONFIRMED);
+
         reservationRepository.save(reservation);
 
         seat.setReserved(true);
@@ -69,6 +73,10 @@ public class ReservationProcessorImpl implements ReservationProcessor {
             throw new InvalidReservationException("No se puede cancelar una reserva no confirmada");
         }
 
+        freeSeat(reservation);
+    }
+
+    private void freeSeat(Reservation reservation) {
         reservation.getSeat().setReserved(false);
         reservation.setStatus(Reservation.ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);

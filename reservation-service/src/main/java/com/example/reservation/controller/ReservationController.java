@@ -1,7 +1,6 @@
 package com.example.reservation.controller;
 
 import com.example.common.dto.ReservationRequest;
-import com.example.common.exceptions.InvalidSeatException;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

@@ -1,5 +1,5 @@
 // processing-service/src/main/java/com/example/processing/config/DatabaseConfig.java
-package com.example.processing.config;
+package com.example.common.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -18,7 +18,7 @@ import java.util.HashMap;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "com.example.processing.repository",
+        basePackages = {"com.example.processing.repository", "com.example.reservation.repository"},
         entityManagerFactoryRef = "postgresEntityManager",
         transactionManagerRef = "postgresTransactionManager"
 )
@@ -39,7 +39,9 @@ public class DatabaseConfig {
     public LocalContainerEntityManagerFactoryBean postgresEntityManager() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(postgresDataSource());
-        em.setPackagesToScan("com.example.processing.model", "com.example.common.model");
+        em.setPackagesToScan("com.example.common.model",
+                             "com.example.processing.model",
+                             "com.example.reservation.model");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

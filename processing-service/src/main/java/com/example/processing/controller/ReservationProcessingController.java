@@ -19,7 +19,8 @@ class ReservationProcessingController {
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public void processReservations(ReservationRequest request) {
-        processor.processPendingReservations(request);
+         System.out.println("entró" + request.toString());
+         processor.processPendingReservations(request);
     }
 
 

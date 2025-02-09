@@ -26,16 +26,18 @@ public class PublishReservationImpl implements PublishReservation {
 
     @Override
     @Transactional
-    public void publishReservation(ReservationRequest reservationRequest) {
+    public boolean publishReservation(ReservationRequest reservationRequest) {
         Seat seat = validatorService.isValid(reservationRequest);
         if(seat != null) {
             rabbitTemplate.convertAndSend("reservation.exchange", "reservation.pending", reservationRequest);
             seat.setPending(true);
             seatRepository.save(seat);
+            return true;
         }
         else{
             System.out.println("invalid");
             rabbitTemplate.convertAndSend( "reservations.errors", reservationRequest);
+            return false;
         }
     }
 }

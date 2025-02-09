@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-// reservation-service/src/main/java/com/example/reservation/controller/ReservationController.java
 @RestController
 @RequestMapping("/api/reservations")
 public class ReservationController {
@@ -27,14 +26,12 @@ public class ReservationController {
 
         boolean response = publishReservation.publishReservation(request);
 
-        // Si la respuesta es exitosa
         if (response) {
             return ResponseEntity.status(HttpStatus.OK)
-                    .body("Reserva exitosa, datos procesados correctamente.");
+                    .body("Reservation successful, data processed correctly.");
         } else {
-            // Si la respuesta es falsa, se indica que revise los datos
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("La reserva no pudo ser procesada. Revise los datos enviados o disponibilidad de la silla.");
+                    .body("The reservation could not be processed. Review the data sent or availability of the chair.");
         }
     }
 }

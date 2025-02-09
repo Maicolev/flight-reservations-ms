@@ -14,7 +14,7 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
    // Optional<Seat> findByFlightIdAndSeatNumber(Long flightId, String seatNumber);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)  // Se aplica el bloqueo pesimista en esta consulta
+    @Lock(LockModeType.PESSIMISTIC_WRITE)  //pessimistic block for this consult
     Optional<Seat> findByFlightIdAndSeatNumber(@Param("flightId") Long flightId,
                                                @Param("seatNumber") String seatNumber);
 

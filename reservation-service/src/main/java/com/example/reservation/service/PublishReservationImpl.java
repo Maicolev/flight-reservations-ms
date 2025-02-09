@@ -20,7 +20,6 @@ public class PublishReservationImpl implements PublishReservation {
         this.validatorService = validatorService;
         this.seatRepository = seatRepository;
 
-        // Asegurar el convertidor
         this.rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
     }
 

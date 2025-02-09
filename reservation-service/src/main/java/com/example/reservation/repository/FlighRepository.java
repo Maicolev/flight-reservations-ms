@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface FlighRepository extends JpaRepository<Flight, Long> {
 
-    //@Lock(LockModeType.PESSIMISTIC_WRITE)  // Se aplica el bloqueo pesimista en esta consulta
+    //@Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Flight> findById(@Param("id") Long id);
 }

@@ -20,10 +20,10 @@ class ReservationCancellerServiceImpl implements ReservationCanceller {
     @Override
     public void cancelReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new ReservationNotFoundException("Reserva no encontrada"));
+                .orElseThrow(() -> new ReservationNotFoundException("Booking not found"));
 
         if (reservation.getStatus() != Reservation.ReservationStatus.CONFIRMED) {
-            throw new InvalidReservationException("Solo se pueden cancelar reservas confirmadas");
+            throw new InvalidReservationException("Only confirmed reservations can be canceled");
         }
 
         Seat seat = reservation.getSeat();

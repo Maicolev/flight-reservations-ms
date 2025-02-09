@@ -31,7 +31,7 @@ public class ReservationProcessorImpl implements ReservationProcessor {
         System.out.println("Reservation processing started: " + request);
 
         Seat seat = seatRepository.findByFlightIdAndSeatNumber(request.flightId(), request.seatNumber())
-                .orElseThrow(() -> new SeatNotFoundException("Asiento no encontrado"));
+                .orElseThrow(() -> new SeatNotFoundException("Seat not found"));
 
         if (seat.isReserved()) {
             sendErrorResponse(request);
@@ -72,10 +72,10 @@ public class ReservationProcessorImpl implements ReservationProcessor {
     @Override
     public void cancelReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ReservationNotFoundException("Reserva no encontrada"));
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found"));
 
         if (reservation.getStatus() != Reservation.ReservationStatus.CONFIRMED) {
-            throw new InvalidReservationException("No se puede cancelar una reserva no confirmada");
+            throw new InvalidReservationException("You cannot cancel an unconfirmed reservation");
         }
 
         freeSeat(reservation);
@@ -83,7 +83,7 @@ public class ReservationProcessorImpl implements ReservationProcessor {
 
     private void freeSeat(Reservation reservation) {
         Seat seat = seatRepository.findById(reservation.getSeat().getId())
-                .orElseThrow(() -> new SeatNotFoundException("Asiento no encontrado"));
+                .orElseThrow(() -> new SeatNotFoundException("Seat not found"));
 
         reservation.getSeat().setReserved(false);
         reservation.setStatus(Reservation.ReservationStatus.CANCELLED);

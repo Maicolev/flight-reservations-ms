@@ -28,21 +28,21 @@ public class ValidatorServiceImpl implements ValidatorService {
 
     public boolean isValidFlight(ReservationRequest reservationRequest) {
        flighRepository.findById(reservationRequest.flightId())
-                .orElseThrow(() -> new FlightNotFoundException("Vuelo no encontrado"));
+                .orElseThrow(() -> new FlightNotFoundException("Flight not found"));
         return true;
     }
 
     public Seat isValidSeat(ReservationRequest reservationRequest) {
         if (isValidFormat(reservationRequest)) {
             Seat seat = seatRepository.findByFlightIdAndSeatNumber(reservationRequest.flightId(), reservationRequest.seatNumber())
-                    .orElseThrow(() -> new SeatNotFoundException("Asiento no encontrado"));
+                    .orElseThrow(() -> new SeatNotFoundException("Seat Not Found"));
 
             if (seat.isReserved()) {
-                throw new InvalidSeatException("Asiento reservado");
+                throw new InvalidSeatException("Seat is reserved");
             }
 
             if (seat.isPending()) {
-                throw new InvalidSeatException("Asiento en transacción");
+                throw new InvalidSeatException("Seat is already pending - in transaction");
             }
             return seat;
         }

@@ -14,6 +14,4 @@ public class Flight {
 
     @Column(name = "flight_number")
     private String flightNumber;
-
-    // Otros campos según sea necesario
 }

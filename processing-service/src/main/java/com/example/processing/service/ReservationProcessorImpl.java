@@ -15,6 +15,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
@@ -45,15 +46,16 @@ public class ReservationProcessorImpl implements ReservationProcessor {
     }
 
     private void confirmReservation(ReservationRequest request, Seat seat) {
+        seat.setReserved(true);
+        seatRepository.save(seat);
+
         Reservation reservation = new Reservation();
+        reservation.setCreatedAt(LocalDateTime.now());
         reservation.setSeat(seat);
         reservation.setEmail(request.email());
         reservation.setStatus(Reservation.ReservationStatus.CONFIRMED);
 
         reservationRepository.save(reservation);
-
-        seat.setReserved(true);
-        seatRepository.save(seat);
 
         rabbitTemplate.convertAndSend("reservations.confirmed", reservation.getId());
     }

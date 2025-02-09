@@ -1,4 +1,4 @@
-package com.example.processing.repository;
+package com.example.reservation.repository;
 
 import com.example.common.model.Seat;
 import jakarta.persistence.LockModeType;
@@ -17,8 +17,4 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)  // Se aplica el bloqueo pesimista en esta consulta
     Optional<Seat> findByFlightIdAndSeatNumber(@Param("flightId") Long flightId,
                                                @Param("seatNumber") String seatNumber);
-
-//    @Lock(LockModeType.PESSIMISTIC_WRITE)
-//    @Query("SELECT s FROM Seat s WHERE s.id = :flightId AND s.seatNumber = :seatNumber")
-//    Optional<Seat> findByFlightIdAndSeatNumber(@Param("flightId") Long flightId, @Param("seatNumber") String seatNumber);
 }

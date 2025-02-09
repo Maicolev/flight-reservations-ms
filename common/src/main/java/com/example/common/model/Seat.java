@@ -22,8 +22,8 @@ public class Seat {
     @Column(name = "reserved")
     private boolean reserved;
 
-    //@Column(name = "pending")
-    //private boolean pending;
+    @Column(name = "pending")
+    private boolean pending;
 
     @Version
     @Column(name = "version")

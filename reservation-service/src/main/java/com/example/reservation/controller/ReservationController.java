@@ -1,10 +1,9 @@
 package com.example.reservation.controller;
 
 import com.example.common.dto.ReservationRequest;
+import com.example.reservation.service.PublishReservation;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,12 +12,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/reservations")
 public class ReservationController {
 
-    private final RabbitTemplate rabbitTemplate;
+    private final PublishReservation publishReservation;
 
-    public ReservationController(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-        // Asegurar el convertidor
-        this.rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+    public ReservationController(PublishReservation publishReservation) {
+        this.publishReservation = publishReservation;
     }
     @PostMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -26,16 +23,9 @@ public class ReservationController {
     public void createReservation(@Valid @RequestBody ReservationRequest request) {
         System.out.println("entry");
         System.out.println(request);
-        // Validación básica
-//        if (!isValidSeatFormat(request.seatNumber())) {
-//            throw new InvalidSeatException("Formato de asiento inválido");
-//        }
 
+        publishReservation.publishReservation(request);
        // rabbitTemplate.convertAndSend("reservations.pending", request);
-        rabbitTemplate.convertAndSend("reservation.exchange", "reservation.pending", request);
-    }
 
-    private boolean isValidSeatFormat(String seat) {
-        return seat.matches("[A-Z][0-9]+");
     }
 }

@@ -39,6 +39,8 @@ public class ReservationProcessorImpl implements ReservationProcessor {
         }
 
         confirmReservation(request, seat);
+        seat.setPending(false);
+        seatRepository.save(seat);
     }
 
     private void sendErrorResponse(ReservationRequest request) {
@@ -62,6 +64,7 @@ public class ReservationProcessorImpl implements ReservationProcessor {
 
     @Override
     public List<Reservation> getConfirmedReservations(Long flightId) {
+        System.out.println("Reservation processing started: " + flightId);
         return reservationRepository.findBySeatFlightIdAndStatus(flightId, Reservation.ReservationStatus.CONFIRMED);
     }
 
@@ -79,8 +82,13 @@ public class ReservationProcessorImpl implements ReservationProcessor {
     }
 
     private void freeSeat(Reservation reservation) {
+        Seat seat = seatRepository.findById(reservation.getSeat().getId())
+                .orElseThrow(() -> new SeatNotFoundException("Asiento no encontrado"));
+
         reservation.getSeat().setReserved(false);
         reservation.setStatus(Reservation.ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
+        seat.setReserved(false);
+        seatRepository.save(seat);
     }
 }

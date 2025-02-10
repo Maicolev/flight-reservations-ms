@@ -12,6 +12,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableRabbit
 public class RabbitConfig {
+
+    public static final String PENDING_QUEUE = "reservations.pending";
+
+    @Bean
+    public Queue pendingQueue() {
+        return new Queue(PENDING_QUEUE, true);
+    }
+
     @Bean
     public Queue confirmedQueue() {
         return new Queue("reservations.confirmed", true);

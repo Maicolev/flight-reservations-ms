@@ -38,6 +38,11 @@
                     <target>17</target>
                 </configuration>
             </plugin>
+            <!-- Añade el plugin surefire -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 </project>

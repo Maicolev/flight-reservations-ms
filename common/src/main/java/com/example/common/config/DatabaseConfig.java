@@ -29,7 +29,8 @@ public class DatabaseConfig {
     public DataSource postgresDataSource() {
         return DataSourceBuilder.create()
                 .driverClassName("org.postgresql.Driver")
-                .url("jdbc:postgresql://localhost:5432/reservations")
+                //.url("jdbc:postgresql://localhost:5432/reservations")
+                .url("jdbc:postgresql://flight-reservations-ms-postgres-1:5432/reservations")
                 .username("postgres")
                 .password("postgres")
                 .build();

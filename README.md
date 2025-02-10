@@ -1,9 +1,21 @@
+# Flight Reservations Microservices System ✈️
 
-# Proyecto de Reserva de Vuelos - Microservicios
+Sistema distribuido para gestión de reservas de vuelos usando arquitectura de microservicios con Spring Boot, RabbitMQ y PostgreSQL.
 
-Este proyecto tiene como objetivo gestionar las reservas de vuelos mediante una arquitectura de microservicios. Incluye dos microservicios: un servicio de **reservas** y un servicio de **procesamiento**. Los servicios se comunican mediante colas de mensajería y se encargan de validar la entrada, procesar la reserva y almacenarla en una base de datos. 
+Este proyecto tiene como objetivo gestionar las reservas de vuelos mediante una arquitectura de microservicios. Incluye dos microservicios: un servicio de **reservas** y un servicio de **procesamiento**. Los servicios se comunican mediante colas de mensajería y se encargan de validar la entrada, procesar la reserva y almacenarla en una base de datos.
 
-## Propósito del Proyecto
+## 📌 Tabla de Contenidos
+- [Propósito del Proyecto](#-propósito-del-proyecto)
+- [Arquitectura del Sistema](#-arquitectura-del-sistema)
+- [Tecnologías Utilizadas](#-tecnologías-utilizadas)
+- [Instalación y Ejecución](#-instalación-y-ejecución)
+- [Endpoints API](#-endpoints-api)
+- [Configuración de Colas RabbitMQ](#-configuración-de-colas-rabbitmq)
+- [Perfiles Spring](#-perfiles-spring)
+- [Datos de Prueba](#-datos-de-prueba)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
+
+## 🎯 Propósito del Proyecto
 
 El proyecto se encarga de:
 
@@ -12,26 +24,77 @@ El proyecto se encarga de:
 - Eliminarlas y consultar vuelos
 - Utiliza colas para asegurar la correcta entrega y procesamiento de las reservas.
 
-## Tecnologías y Dependencias
-### Tecnologías Utilizadas
-- Java 17
-- Spring Boot
-- Spring Data JPA
-- PostgreSQL
-- RabbitMQ
-- Docker
+Sistema que permite:
+1. **Reservation Service**: Validar formato de reservas y enviar a cola RabbitMQ.
+2. **Processing Service**: Procesar reservas desde colas y persistir en PostgreSQL.
+3. **3 Colas Especializadas**:
+   - `reservations.pending`: Reservas pendientes de procesar.
+   - `reservations.confirmed`: Reservas confirmadas.
+   - `reservations.errors`: Reservas con errores.
 
-### Dependencias Principales
-- spring-boot-starter-web
-- spring-boot-starter-data-jpa
-- spring-boot-starter-amqp
-- postgresql
-- hibernate-core
-- jackson-databind
+## 🏗️ Arquitectura del Sistema
+```mermaid
+graph LR
+    A[Cliente] --> B[Reservation Service]
+    B -->|Publica| C[(RabbitMQ)]
+    C -->|Consume| D[Processing Service]
+    D --> E[(PostgreSQL)]
+```
+💻 Tecnologías Utilizadas
 
-## Endpoints
+Tecnología	Versión	Uso
+Spring Boot	3.1.5	Framework principal
+PostgreSQL	13	Base de datos
+RabbitMQ	3-management	Mensajería
+Docker	24+	Contenedorización
+Java	17	Lenguaje base
+Maven	3.8.5	Gestión de dependencias
+Lombok	1.18.28	Reducción de código boilerplate
+Dependencias Clave:
 
-### Microservicio de Reservas (Reserva Service)
+Spring Web
+Spring Data JPA
+Spring AMQP
+Spring Boot Actuator
+Springdoc OpenAPI
+🚀 Instalación y Ejecución
+
+Requisitos Previos
+
+Docker 24+
+Docker Compose 2.20+
+Pasos Rápidos
+
+bash
+Copy
+# 1. Clonar repositorio
+git clone https://github.com/tu-usuario/flight-reservations-ms.git
+
+# 2. Construir y levantar servicios
+docker-compose up --build
+
+# 3. Verificar servicios
+curl http://localhost:8080/actuator/health
+
+## 🔧 Configuración
+
+Variables de Entorno Clave
+
+properties
+
+# Perfil Docker (application-docker.properties)
+spring.datasource.url=jdbc:postgresql://postgres:5432/reservations
+spring.rabbitmq.host=rabbitmq
+
+# Perfil Local (application-local.properties)
+spring.datasource.url=jdbc:postgresql://localhost:5432/reservations
+spring.rabbitmq.host=localhost
+
+
+
+## 📡 Endpoints API
+
+### Microservicio de Reservas (Reserva Service:8080)
 
 - **POST** `/api/reservations`:
   - Crea una nueva reserva.
@@ -44,30 +107,43 @@ El proyecto se encarga de:
     }
     ```
 
-### Microservicio de Procesamiento (Processing Service)
+### Microservicio de Procesamiento (Processing Service:8081)
 
 - **GET** `/api/processing/confirmed`: 
   - Este endpoint se encarga de procesar las reservas confirmadas.
   
 - **DELETE** `/api/processing/confirmed`: 
   - Elimina un procesamiento confirmado.
-  - Requiere un parámetro `flightId` para eliminar el procesamiento asociado.te endpoint se encarga de procesar las reservas confirmadas.
-  
-## Colas
+  - Requiere un parámetro `flightId` para eliminar el procesamiento asociado.te endpoint se encarga de procesar las reservas
 
-El sistema utiliza tres colas para manejar las reservas:
 
-1. **reservations.pending**: Cola de reservas pendientes.
-2. **reservations.confirmed**: Cola de reservas confirmadas.
-3. **reservations.errors**: Cola de errores para las reservas fallidas.
+## 🐇 Configuración de Colas RabbitMQ
 
-## Configuración de Docker
+```java
 
-El proyecto incluye un archivo Docker con dos perfiles: uno para ejecución local y otro para Docker. El Dockerfile está dividido en tres etapas:
+// Configuración en Common Module
+public class RabbitConfig {
+    public static final String PENDING_QUEUE = "reservations.pending";
+    public static final String CONFIRMED_QUEUE = "reservations.confirmed";
+    public static final String ERROR_QUEUE = "reservations.errors";
+    
+    // Bindings a Direct Exchange
+    @Bean
+    public Binding pendingBinding() {
+        return BindingBuilder.bind(pendingQueue())
+                .to(reservationExchange())
+                .with("reservation.pending");
+    }
+}
+```
 
-1. **Stage 1: Construcción del módulo común y servicios**
-2. **Stage 2: Servicio de Reservas**
-3. **Stage 3: Servicio de Procesamiento**
+
+## 🌐 Perfiles Spring
+
+Perfil	Descripción
+local	Ejecución fuera de Docker
+docker	Ejecución en entorno contenerizado
+Ejecutar con Perfil:
 
 ### Dockerfile
 
@@ -109,6 +185,7 @@ ENV SPRING_PROFILES_ACTIVE=docker
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 ```
 
+
 ## Base de Datos
 
 El proyecto utiliza PostgreSQL como base de datos, y las conexiones están configuradas tanto para el entorno local como para Docker.
@@ -139,79 +216,31 @@ public DataSource postgresDataSourceDocker() {
 }
 ```
 
-## Dependencias y Tecnologías
 
-- **Spring Boot**: Framework principal para construir los microservicios.
-- **RabbitMQ**: Para la mensajería entre servicios mediante colas.
-- **PostgreSQL**: Base de datos para almacenar las reservas.
-- **Docker**: Para la construcción y despliegue del proyecto en contenedores.
-- **Maven**: Herramienta de construcción para gestionar las dependencias.
+## 🧪 Datos de Prueba
 
-## Instrucciones para Ejecutar el Proyecto
+Archivo init.sql con:
 
-### Local
+2 vuelos iniciales
+8 asientos por vuelo
+2 reservas de ejemplo
+Acceso a BD:
 
-1. Clona el repositorio.
-2. Ejecuta los servicios de forma local usando los perfiles locales de Spring.
-3. Ejecuta las siguientes instrucciones para iniciar el servicio de reservas y el servicio de procesamiento:
+bash
+Copy
+psql -h localhost -U postgres -d reservations
 
-```bash
-# Para el servicio de reservas
-mvn spring-boot:run -Dspring-boot.run.profiles=local
+## 📄 Licencia
 
-# Para el servicio de procesamiento
-mvn spring-boot:run -Dspring-boot.run.profiles=local
-```
+MIT License © 2024 [Tu Nombre]
 
-### Docker
-
-1. Construye y ejecuta el proyecto usando Docker con los siguientes comandos:
-
-```bash
-# Construir la imagen de Docker
-docker-compose build
-
-# Iniciar los contenedores de Docker
-docker-compose up
-```
-
-2. Accede a los servicios en los siguientes puertos:
-
-- Servicio de reservas: `http://localhost:8080`
-- Servicio de procesamiento: `http://localhost:8081`
-
-## Datos de Prueba
-
-En el proyecto se incluye un archivo `init.sql` con datos de prueba para cargar en la base de datos.
-
-## Diagramas
-
-### Arquitectura del Proyecto
-
-```plaintext
-   +--------------------+         +-------------------+         +---------------------+
-   | Microservicio de    |         | Cola de Mensajería |         | Microservicio de     |
-   | Reservas           +--------->  reservations      +--------->  Procesamiento       |
-   | (Reserva Service)  |         | .pending           |         | (Processing Service) |
-   +--------------------+         +-------------------+         +---------------------+
-```
-
-Este gráfico muestra cómo los microservicios se comunican a través de la cola `reservations.pending`.
+## 🛠️ ¿Problemas?
+Abre un issue en GitHub o contacta al mantenedor.
 
 
-## Contribuciones
-
-Si deseas contribuir al proyecto, por favor sigue estos pasos:
-
-1. Haz un fork del repositorio.
-2. Crea una nueva rama (`git checkout -b feature/nueva-caracteristica`).
-3. Haz tus cambios.
-4. Haz commit de tus cambios (`git commit -m 'Agregando nueva característica'`).
-5. Haz push a la rama (`git push origin feature/nueva-caracteristica`).
-6. Crea un pull request.
-
----
-
-## Licencia
-
-Este proyecto está bajo la Licencia MIT - consulta el archivo [LICENSE](LICENSE) para más detalles.
+Este README proporciona una guía completa para desarrolladores, incluyendo:
+- Contexto técnico y funcional
+- Instrucciones detalladas de despliegue
+- Documentación de API lista para usar
+- Explicación de arquitectura y flujos de datos
+- Soporte para múltiples ambientes via Spring Profiles

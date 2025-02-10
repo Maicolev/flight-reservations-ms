@@ -27,14 +27,20 @@ public class ReservationController {
         System.out.println("Entry");
         System.out.println(request);
 
-        boolean response = publishReservation.publishReservation(request);
+        try{
+            boolean response = publishReservation.publishReservation(request);
 
-        if (response) {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("Reservation successful, data processed correctly.");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            if (response) {
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("Reservation successful, data processed correctly.");
+            } else {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("The reservation could not be processed. Review the data sent or availability of the chair.");
+            }
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("The reservation could not be processed. Review the data sent or availability of the chair.");
         }
+
     }
 }

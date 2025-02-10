@@ -1,10 +1,10 @@
-// processing-service/src/main/java/com/example/processing/config/DatabaseConfig.java
 package com.example.common.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -26,7 +26,8 @@ public class DatabaseConfig {
 
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource")
-    public DataSource postgresDataSource() {
+    @Profile("local")
+    public DataSource postgresDataSourceLocal() {
         return DataSourceBuilder.create()
                 .driverClassName("org.postgresql.Driver")
                 .url("jdbc:postgresql://localhost:5432/reservations")
@@ -36,12 +37,24 @@ public class DatabaseConfig {
     }
 
     @Bean
+    @ConfigurationProperties(prefix = "spring.datasource")
+    @Profile("docker")
+    public DataSource postgresDataSourceDocker() {
+        return DataSourceBuilder.create()
+                .driverClassName("org.postgresql.Driver")
+                .url("jdbc:postgresql://flight-reservations-ms-postgres-1:5432/reservations")
+                .username("postgres")
+                .password("postgres")
+                .build();
+    }
+
+    @Bean
     public LocalContainerEntityManagerFactoryBean postgresEntityManager() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(postgresDataSource());
+        em.setDataSource(postgresDataSourceLocal()); // Aquí Spring seleccionará el bean adecuado según el perfil
         em.setPackagesToScan("com.example.common.model",
-                             "com.example.processing.model",
-                             "com.example.reservation.model");
+                "com.example.processing.model",
+                "com.example.reservation.model");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

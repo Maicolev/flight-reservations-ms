@@ -47,7 +47,7 @@ public class ReservationControllerTest {
         mockMvc.perform(post("/api/reservations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(content().string("The reservation could not be processed. Review the data sent or availability of the chair."));
     }
 
@@ -58,6 +58,6 @@ public class ReservationControllerTest {
         mockMvc.perform(post("/api/reservations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequest))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 }

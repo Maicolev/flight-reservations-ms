@@ -24,10 +24,12 @@ RUN mvn clean install -DskipTests
 FROM openjdk:17-jdk-slim AS reservation-service
 COPY --from=build /app/reservation-service/target/reservation-service-*.jar /app/app.jar
 EXPOSE 8080
+ENV SPRING_PROFILES_ACTIVE=docker
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 
 # Stage 3: Processing Service
 FROM openjdk:17-jdk-slim AS processing-service
 COPY --from=build /app/processing-service/target/processing-service-*.jar /app/app.jar
 EXPOSE 8081
+ENV SPRING_PROFILES_ACTIVE=docker
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

@@ -182,7 +182,7 @@ docker-compose up
 
 ## Datos de Prueba
 
-En el proyecto se incluye un archivo `data.sql` con datos de prueba para cargar en la base de datos.
+En el proyecto se incluye un archivo `init.sql` con datos de prueba para cargar en la base de datos.
 
 ## Diagramas
 

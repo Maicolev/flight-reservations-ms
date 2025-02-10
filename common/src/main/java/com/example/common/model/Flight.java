@@ -15,5 +15,9 @@ public class Flight {
     @Column(name = "flight_number")
     private String flightNumber;
 
-    // Otros campos según sea necesario
+    @Column(name = "departure")
+    private String departure;
+
+    @Column(name = "destination")
+    private String destination;
 }

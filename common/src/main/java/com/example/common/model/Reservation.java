@@ -31,36 +31,4 @@ public class Reservation {
     public enum ReservationStatus {
         PENDING, CONFIRMED, CANCELLED
     }
-
-    // Getter y Setter para id
-    public Long getId() {
-        return id;
-    }
-
-    // Getter y Setter para seat
-    public Seat getSeat() {
-        return seat;
-    }
-
-    public void setSeat(Seat seat) {
-        this.seat = seat;
-    }
-
-    // Getter y Setter para email
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    // Getter y Setter para status
-    public ReservationStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ReservationStatus status) {
-        this.status = status;
-    }
 }

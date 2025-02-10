@@ -226,13 +226,12 @@ Archivo init.sql con:
 2 reservas de ejemplo
 Acceso a BD:
 
-bash
-Copy
+``` bash
 psql -h localhost -U postgres -d reservations
-
+```
 ## 📄 Licencia
 
-MIT License © 2024 [Tu Nombre]
+MIT License © 2024 [Maicol Orejuela]
 
 ## 🛠️ ¿Problemas?
 Abre un issue en GitHub o contacta al mantenedor.
